@@ -117,8 +117,8 @@ public class Revolver {
                 firstPlayerWins = firstPlayerWins.add(BigDecimal.ONE);
             }
         }
-        BigDecimal percentFirst = calculatePercentage(firstPlayerWins, numbersOfExperiments);
-        BigDecimal percentSecond = calculatePercentage(secondPlayerWins, numbersOfExperiments);
+        BigDecimal percentFirst = calculateWinPercentage(firstPlayerWins, numbersOfExperiments);
+        BigDecimal percentSecond = calculateWinPercentage(secondPlayerWins, numbersOfExperiments);
 
         String firstInfo = "\tПервый победил раз " + firstPlayerWins + ". Процент " + percentFirst;
         String secondInfo = "\tВторой победил раз " + secondPlayerWins + ". Процент " + percentSecond;
@@ -129,7 +129,7 @@ public class Revolver {
 
 
     /**
-     * Вычисляет процент успеха на основе количества побед и общего числа попыток или событий.
+     * Вычисляет процент успеха на основе количества побед и общего числа попыток.
      * Если входные данные допустимы (проверяется методом {@link #isValidInput(BigDecimal, BigDecimal)}),
      * то процент успеха вычисляется как (wins * 100) / total с округлением вверх до ближайшего целого числа.
      *
@@ -137,18 +137,18 @@ public class Revolver {
      * @param total Общее количество попыток или событий.
      * @return Процент успеха в виде объекта BigDecimal.
      */
-    private static BigDecimal calculatePercentage(BigDecimal wins, BigDecimal total) {
+    private static BigDecimal calculateWinPercentage(BigDecimal wins, BigDecimal total) {
         isValidInput(wins, total);
         return wins.
                 multiply(BigDecimal.valueOf(100)).
                 divide(total, RoundingMode.HALF_UP);
-}
+    }
 
     /**
      * Проверяет, являются ли входные данные для вычисления процента побед допустимыми.
      * Входные данные считаются допустимыми, если:
      * - Оба параметра wins и total не являются null.
-     * - Оба параметра total и wins больше нуля (total.compareTo(BigDecimal.ZERO) > 0 и wins.compareTo(BigDecimal.ZERO) > 0).
+     * - Параметра total больше нуля.
      *
      * @param wins  Количество побед.
      * @param total Общее количество попыток или событий.
@@ -157,9 +157,12 @@ public class Revolver {
      * @throws IllegalArgumentException если total или wins меньше, или равны нулю.
      */
     private static boolean isValidInput(BigDecimal wins, BigDecimal total) {
-        if (wins != null && total != null && total.compareTo(BigDecimal.ZERO) >= 0) {
-            return true;
+        if (wins != null && total != null) {
+            if (total.compareTo(BigDecimal.ZERO) >= 0) {
+                return true;
+            }
+            throw new IllegalArgumentException("Недопустимые входные данные: total должен быть неотрицательными");
         } else
-            throw new IllegalArgumentException("Ошибка в валидации данных");
+            throw new IllegalArgumentException("Значения wins и/или total не заданы. NPE");
     }
 }
