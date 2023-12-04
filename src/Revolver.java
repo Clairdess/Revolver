@@ -70,7 +70,8 @@ public class Revolver {
     /**
      * Запрашивает у пользователя количество экспериментов для проведения.
      * Если введенное значение является целым числом, оно преобразуется в объект BigDecimal и возвращается.
-     * Если ввод не является целым числом или происходит ошибка ввода, выводится сообщение об ошибке,
+     * Если значение не целое, то у него удаляется дробная часть.
+     * Если введено не число, выводится сообщение об ошибке,
      * и возвращается значение по умолчанию - 10000 экспериментов.
      *
      * @return Объект BigDecimal, представляющий количество экспериментов.
@@ -78,13 +79,13 @@ public class Revolver {
     private static BigDecimal getNumberOfExperiments() {
         BigDecimal numbers;
         try {
-            numbers = new BigDecimal(sc.next());
+            numbers = new BigDecimal(sc.next()).setScale(0, RoundingMode.DOWN);
             if (numbers.compareTo(BigDecimal.ZERO) <= 0) {
                 throw new RuntimeException();
             }
         } catch (RuntimeException e) {
             System.out.println("Ошибка в вводе числа. Число экспериментов будет равно 10000");
-            numbers = BigDecimal.valueOf(10000);
+            return BigDecimal.valueOf(10000);
         }
         return numbers;
     }
