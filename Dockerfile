@@ -4,4 +4,4 @@ COPY src/Revolver.java Revolver.java
 
 RUN javac Revolver.java
 
-CMD ["java", "Revolver.java"]
+CMD ["java", "Revolver"]
