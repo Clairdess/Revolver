@@ -154,7 +154,7 @@ public class Revolver {
      * @throws IllegalArgumentException если total или wins меньше, или равны нулю.
      */
     private static boolean isValidInput(BigDecimal wins, BigDecimal total) {
-        if (wins != null && total != null && total.compareTo(BigDecimal.ZERO) > 0 && wins.compareTo(BigDecimal.ZERO) > 0) {
+        if (wins != null && total != null && total.compareTo(BigDecimal.ZERO) >= 0) {
             return true;
         } else
             throw new IllegalArgumentException("Ошибка в валидации данных");
