@@ -2,7 +2,6 @@ package main;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -63,6 +62,7 @@ public class Revolver {
 
         System.out.println("Результаты если сразу нажать на курок");
         calculate(numbersOfExperiments, false);
+
         System.out.println("Результаты если крутить барабан");
         calculate(numbersOfExperiments, true);
     }
@@ -92,10 +92,9 @@ public class Revolver {
      * Если isSpin установлен в true, то количество вариантов равно 4.
      * Если isSpin установлен в false, то - 6.
      * Результаты экспериментов выводятся в консоль, включая количество побед каждого игрока и процент успеха.
-
-     * @param numbersOfExperiments Количество экспериментов, которые следует провести.
-     * @param isSpin Флаг, изменяющий количество вариантов.
      *
+     * @param numbersOfExperiments Количество экспериментов, которые следует провести.
+     * @param isSpin               Флаг, изменяющий количество вариантов.
      * @throws IllegalArgumentException если numbersOfExperiments меньше или равно нулю.
      */
     private static void calculate(BigDecimal numbersOfExperiments, boolean isSpin) {
@@ -126,27 +125,21 @@ public class Revolver {
     }
 
 
-
     /**
      * Вычисляет процент успеха на основе количества побед и общего числа попыток или событий.
      * Если входные данные допустимы (проверяется методом {@link #isValidInput(BigDecimal, BigDecimal)}),
      * то процент успеха вычисляется как (wins * 100) / total с округлением вверх до ближайшего целого числа.
      *
-     * @param wins Количество побед.
+     * @param wins  Количество побед.
      * @param total Общее количество попыток или событий.
      * @return Процент успеха в виде объекта BigDecimal.
-     *
-     * @throws IllegalArgumentException если входные данные не допустимы, согласно методу {@link #isValidInput(BigDecimal, BigDecimal)}.
-     * @throws ArithmeticException если происходит деление на ноль в случае, если total равен нулю.
      */
     private static BigDecimal calculatePercentage(BigDecimal wins, BigDecimal total) {
-
-
-            return wins.
-                    multiply(BigDecimal.valueOf(100)).
-                    divide(total, RoundingMode.HALF_UP);
-
-    }
+        isValidInput(wins, total);
+        return wins.
+                multiply(BigDecimal.valueOf(100)).
+                divide(total, RoundingMode.HALF_UP);
+}
 
     /**
      * Проверяет, являются ли входные данные для вычисления процента побед допустимыми.
@@ -154,14 +147,16 @@ public class Revolver {
      * - Оба параметра wins и total не являются null.
      * - Оба параметра total и wins больше нуля (total.compareTo(BigDecimal.ZERO) > 0 и wins.compareTo(BigDecimal.ZERO) > 0).
      *
-     * @param wins Количество побед.
+     * @param wins  Количество побед.
      * @param total Общее количество попыток или событий.
      * @return true, если входные данные допустимы; в противном случае - false.
-     *
-     * @throws NullPointerException если хотя бы один из параметров (wins или total) равен null.
+     * @throws NullPointerException     если хотя бы один из параметров (wins или total) равен null.
      * @throws IllegalArgumentException если total или wins меньше, или равны нулю.
      */
     private static boolean isValidInput(BigDecimal wins, BigDecimal total) {
-        return wins != null && total != null && total.compareTo(BigDecimal.ZERO) > 0 && wins.compareTo(BigDecimal.ZERO) > 0;
+        if (wins != null && total != null && total.compareTo(BigDecimal.ZERO) > 0 && wins.compareTo(BigDecimal.ZERO) > 0) {
+            return true;
+        } else
+            throw new IllegalArgumentException("Ошибка в валидации данных");
     }
 }
