@@ -79,7 +79,10 @@ public class Revolver {
         BigDecimal numbers;
         try {
             numbers = new BigDecimal(sc.next());
-        } catch (NumberFormatException e) {
+            if (numbers.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new RuntimeException();
+            }
+        } catch (RuntimeException e) {
             System.out.println("Ошибка в вводе числа. Число экспериментов будет равно 10000");
             numbers = BigDecimal.valueOf(10000);
         }
