@@ -58,6 +58,8 @@ public class Revolver {
         System.out.println("Введите количество экспериментов");
         BigDecimal numbersOfExperiments = getNumberOfExperiments();
 
+        System.out.println("Количество экспериментов " + numbersOfExperiments.longValue());
+
         System.out.println("Результаты если сразу нажать на курок");
         calculate(numbersOfExperiments, false);
 
