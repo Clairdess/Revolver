@@ -1,7 +1,7 @@
 FROM openjdk:11
 
-COPY src/Revolver.java Revolver.java
+COPY src/Revolver.java Main.java
 
-RUN javac Revolver.java
+RUN javac Main.java
 
-CMD ["java", "Revolver"]
+CMD ["java", "Main"]

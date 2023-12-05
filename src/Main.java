@@ -4,37 +4,13 @@ import java.util.Random;
 import java.util.Scanner;
 
 /**
- * Класс, представляющий 6-зарядный револьвер.
- *
- * <p>Револьвер заряжается 2 патронами, которые идут друг за другом.
- * Участвуют 2 человека в игре.
- *
- * <p>Первый игрок нажимает на курок, но выстрел не происходит.
- * Второй игрок должен принять решение: нажать на курок или прокрутить барабан несколько раз.
- *
- * <p>Существуют 4 возможных варианта расположения патронов после холостого выстрела первого игрока:
- * <ol>
- *   <li>011000 - Вариант 1</li>
- *   <li>001100 - Вариант 2</li>
- *   <li>000110 - Вариант 3</li>
- *   <li>000011 - Вариант 4</li>
- * </ol>
- *
- * <p>Для второго игрока желательные расположения патронов являются 2 и 4, что дает шанс 50 на 50.
- * Однако, если второй игрок решит прокрутить барабан, то количество возможных расположений патронов увеличится до 6:
- * <ol>
- *   <li>011000 - Вариант 1</li>
- *   <li>001100 - Вариант 2</li>
- *   <li>000110 - Вариант 3</li>
- *   <li>000011 - Вариант 4</li>
- *   <li>100001 - Вариант 5</li>
- *   <li>110000 - Вариант 6</li>
- * </ol>
- *
- * <p>Для второго игрока желательные расположения патронов остаются 1 и 3, что дает шанс 0.33.
+ * <p>1. Вероятность успешного исхода для первого игрока составляет 4/6 (четыре незаряженных слота из 6), 66.(6)%
+ * <p>2. Варианты для второго игрока
+ * <p>2.1. Вероятность успешного исхода для случая "стрелять сразу" составляет 3/4, 75%.
+ * <p>2.2. Вероятность успешного исхода для случая "вращать" будет полностью соответствовать вероятности успешного исхода для первого игрока - 4/6, 66.(6)%
  */
 
-public class Revolver {
+public class Main {
     /**
      * Объект Random, предназначенный для генерации случайных чисел.
      * Используется в программе для случайного выбора победителя при вращении барабана.
@@ -59,12 +35,7 @@ public class Revolver {
         BigDecimal numbersOfExperiments = getNumberOfExperiments();
 
         System.out.println("Количество экспериментов " + numbersOfExperiments.longValue());
-
-        System.out.println("Результаты если сразу нажать на курок");
-        calculate(numbersOfExperiments, false);
-
-        System.out.println("Результаты если крутить барабан");
-        calculate(numbersOfExperiments, true);
+        calculate(numbersOfExperiments);
     }
 
     /**
@@ -91,41 +62,54 @@ public class Revolver {
     }
 
     /**
-     * Выполняет серию экспериментов для определения победителя между двумя игроками.
-     * В зависимости от параметра isSpin, определяется, количество возможных вариантов.
-     * Если isSpin установлен в true, то количество вариантов равно 4.
-     * Если isSpin установлен в false, то - 6.
-     * Результаты экспериментов выводятся в консоль, включая количество побед каждого игрока и процент успеха.
+     * Выполняет серию экспериментов, оценивая выживаемость игроков в игре с револьвером.
      *
-     * @param numbersOfExperiments Количество экспериментов, которые следует провести.
-     * @param isSpin               Флаг, изменяющий количество вариантов.
-     * @throws IllegalArgumentException если numbersOfExperiments меньше или равно нулю.
+     * @param numbersOfExperiments Количество экспериментов, которые будут проведены.
      */
-    private static void calculate(BigDecimal numbersOfExperiments, boolean isSpin) {
+    private static void calculate(BigDecimal numbersOfExperiments) {
+        // Инициализация переменных для подсчета побед каждого игрока
         BigDecimal firstPlayerWins = BigDecimal.ZERO;
-        BigDecimal secondPlayerWins = BigDecimal.ZERO;
-        int bound = 0;
+        BigDecimal secondPlayerWinsSpin = BigDecimal.ZERO;
+        BigDecimal secondPlayerWinsShoot = BigDecimal.ZERO;
 
-        if (isSpin) {
-            bound = 2;
-        }
-
+        // Проведение указанного числа экспериментов
         for (int i = 0; i < numbersOfExperiments.longValue(); i++) {
-            int seed = random.nextInt(4 + bound);
-            if (seed == 1 || seed == 3) {
-                secondPlayerWins = secondPlayerWins.add(BigDecimal.ONE);
-            } else {
+            // Генерация случайного числа для револьвера
+            int seed = random.nextInt(6);
+            Revolver revolver = new Revolver(seed);
+
+            // Первый выстрел
+            if (!revolver.shoot()) {
                 firstPlayerWins = firstPlayerWins.add(BigDecimal.ONE);
+            } else {
+                continue;
+            }
+
+            // Второй выстрел
+            if (!revolver.shoot()) {
+                secondPlayerWinsShoot = secondPlayerWinsShoot.add(BigDecimal.ONE);
+            }
+
+            // Вращение барабана и третий выстрел
+            revolver.spin();
+            if (!revolver.shoot()) {
+                secondPlayerWinsSpin = secondPlayerWinsSpin.add(BigDecimal.ONE);
             }
         }
-        BigDecimal percentFirst = calculateWinPercentage(firstPlayerWins, numbersOfExperiments);
-        BigDecimal percentSecond = calculateWinPercentage(secondPlayerWins, numbersOfExperiments);
 
-        String firstInfo = "\tПервый победил раз " + firstPlayerWins + ". Процент " + percentFirst;
-        String secondInfo = "\tВторой победил раз " + secondPlayerWins + ". Процент " + percentSecond;
+        // Расчет процентов побед и вывод результатов
+        BigDecimal percentAll = calculateWinPercentage(firstPlayerWins, numbersOfExperiments);
+        BigDecimal percentShoot = calculateWinPercentage(secondPlayerWinsShoot, firstPlayerWins);
+        BigDecimal percentSpin = calculateWinPercentage(secondPlayerWinsSpin, firstPlayerWins);
 
+        String firstInfo = "\tПервый выжил раз " + firstPlayerWins + ". Процент = " + percentAll + " от " + numbersOfExperiments;
+        String secondInfo = "\tВторой выжил раз для случая стрелять " + secondPlayerWinsShoot + ". Процент = " + percentShoot + " от " + firstPlayerWins;
+        String thirdInfo = "\tВторой выжил раз для случая крутить " + secondPlayerWinsSpin + ". Процент = " + percentSpin + " от " + firstPlayerWins;
+
+        // Вывод информации о победах
         System.out.println(firstInfo);
         System.out.println(secondInfo);
+        System.out.println(thirdInfo);
     }
 
 
@@ -165,5 +149,74 @@ public class Revolver {
             throw new IllegalArgumentException("Недопустимые входные данные: total должен быть неотрицательными");
         } else
             throw new IllegalArgumentException("Значения wins и/или total не заданы. NPE");
+    }
+}
+
+/**
+ * Класс Revolver представляет собой простой револьвер с вращающимся барабаном, который можно стрелять и крутить.
+ */
+class Revolver {
+    /**
+     * Текущая позиция указателя барабана.
+     */
+    private int pointer = 0;
+    /**
+     * Массив, представляющий патроны в барабане револьвера.
+     * 1 указывает на заряженный патрон, 0 - на пустую камеру.
+     */
+    private final int[] bullets = new int[]{0, 0, 0, 0, 0, 0};
+
+    /**
+     * Выстреливает патрон из револьвера, перемещая указатель барабана на следующую камеру.
+     *
+     * @return true, если выстрел произведен (есть патрон в камере), в противном случае - false.
+     */
+    public boolean shoot() {
+        if (pointer == bullets.length - 1) {
+            pointer = 0;
+            return bullets[bullets.length - 1] == 1;
+        } else {
+            pointer++;
+            return bullets[pointer] == 1;
+        }
+    }
+
+    /**
+     * Вращает барабан револьвера, случайным образом.
+     */
+    public void spin() {
+        Random random = new Random();
+        int seed = random.nextInt(6);
+        if (seed == 5) {
+            bullets[seed] = 1;
+            bullets[0] = 1;
+        } else {
+            bullets[seed] = 1;
+            bullets[seed + 1] = 1;
+        }
+        pointer = 0;
+    }
+
+    /**
+     * Инициализирует распределение патронов в барабане револьвера на основе заданного сида.
+     *
+     * @param seed Сид, используемое для определения распределения патронов.
+     */
+    private void fillRandom(int seed) {
+        if (seed == 5) {
+            bullets[seed] = 1;
+            bullets[0] = 1;
+        } else {
+            bullets[seed] = 1;
+            bullets[seed + 1] = 1;
+        }
+    }
+    /**
+     * Создает новый объект револьвера с установленным начальным распределением патронов на основе заданного сида.
+     *
+     * @param seed Сид, определяющее начальное распределение патронов.
+     */
+    public Revolver(int seed) {
+        fillRandom(seed);
     }
 }

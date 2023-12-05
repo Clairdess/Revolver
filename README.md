@@ -42,5 +42,5 @@ docker run -it clairdess/bss_test
 2. Проверить, что установлена JDK. Работает начиная с 8 версии
 3. Используя терминал, перейдите в папку src и выполнить следующую команду
 ```bash
-java -cp . Revolver.java
+java -cp . Main.java
 ```
