@@ -1,6 +1,6 @@
 FROM openjdk:11
 
-COPY src/Revolver.java Main.java
+COPY src/Main.java Main.java
 
 RUN javac Main.java
 
